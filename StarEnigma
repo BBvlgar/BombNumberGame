@@ -1,0 +1,112 @@
+package com.company.Regex;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class StarEnigma {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        int n = Integer.parseInt(scanner.nextLine());
+
+        String regexStar = "[^starSTAR]";
+
+        String planetRegex = "(?<=@)[A-Za-z]+";
+        String popuRegex = "(?<=:)[\\d]+";
+        String attackRegex = "(?<=!)[AD](?=!)";
+        String soldierCount = "(?<=->)[\\d]+";
+
+        String deleted = "[^@\\-!:>]";
+
+        Pattern planetPattern = Pattern.compile(planetRegex);
+        Pattern popuPattern = Pattern.compile(popuRegex);
+        Pattern atackPattern = Pattern.compile(attackRegex);
+        Pattern soldierPattern = Pattern.compile(soldierCount);
+
+        String planet = "";
+        int popu = 0;
+        String  attack = "";
+        int soldier = 0;
+
+
+        int countA = 0;
+        int countD = 0;
+
+        Set<String> aPlanet = new TreeSet<>();
+        Set<String> dPlanet = new TreeSet<>();
+
+
+        for (int i = 0; i < n; i++) {
+            String input = scanner.nextLine();
+
+            int count = input.replaceAll(regexStar,"").length();
+
+           char[] charsCount = input.toCharArray();
+
+            for (int j = 0; j < charsCount.length; j++) {
+                charsCount[j] = (char) (charsCount[j] - count);
+
+            }
+            String decrypted = new String(charsCount);
+
+            String delChars = decrypted.replaceAll(deleted,"");
+
+            if (delChars.length() != 6){
+                continue;
+            }
+
+            // @', '-', '!', ':' and '>'.
+
+            Matcher matcherPlanet = planetPattern.matcher(decrypted);
+            Matcher matcherPopu = popuPattern.matcher(decrypted);
+            Matcher matcherAttack = atackPattern.matcher(decrypted);
+            Matcher matcherSoldier = soldierPattern.matcher(decrypted);
+
+            if (matcherPlanet.find()) {
+                 planet = matcherPlanet.group();
+            } else {
+                continue;
+            }
+            if (matcherPopu.find()) {
+                 popu = Integer.parseInt(matcherPopu.group());
+
+            }else {
+                continue;
+            }
+            if (matcherAttack.find()) {
+                 attack = matcherAttack.group();
+
+            }else {
+                continue;
+            }
+            if (matcherSoldier.find()) {
+                 soldier = Integer.parseInt(matcherSoldier.group());
+            }else {
+                continue;
+            }
+
+            if (attack.equals("A") || attack.equals("a") ){
+                countA ++;
+                aPlanet.add(planet);
+
+            } else {
+                countD ++;
+                dPlanet.add(planet);
+            }
+            ////System.out.println(Arrays.toString(charsCount));
+
+        }
+
+        System.out.println(String.format("Attacked planets: %d",countA));
+        if (countA > 0){
+            aPlanet.stream().forEach(e -> System.out.println(String.format("-> %s",e)));
+        }
+        System.out.println(String.format("Destroyed planets: %d",countD));
+
+        if (countD > 0){
+            dPlanet.stream().forEach(e -> System.out.println(String.format("-> %s",e)));
+        }
+
+    }
+}
